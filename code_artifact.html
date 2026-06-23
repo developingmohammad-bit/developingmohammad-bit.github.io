@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قهرمان ریاضی</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+
+    <!-- Google Fonts: Vazirmatn -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden; /* Prevent pull-to-refresh on mobile */
+            touch-action: none;
+        }
+
+        /* Custom Animations */
+        @keyframes attack {
+            0% { transform: translateX(0) scale(1); }
+            50% { transform: translateX(-60px) scale(1.1); } /* Moves left in RTL */
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        @keyframes hurt {
+            0% { filter: brightness(1); transform: translateX(0); }
+            25% { transform: translateX(-10px); filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+            50% { transform: translateX(10px); filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+            75% { transform: translateX(-10px); filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+            100% { filter: brightness(1); transform: translateX(0); }
+        }
+
+        @keyframes monster-hurt {
+            0% { filter: brightness(1); transform: scale(1); }
+            50% { filter: brightness(2) contrast(2); transform: scale(0.9); }
+            100% { filter: brightness(1); transform: scale(1); }
+        }
+
+        @keyframes floating-up {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .anim-attack { animation: attack 0.3s ease-in-out; }
+        .anim-hurt { animation: hurt 0.4s ease-in-out; }
+        .anim-monster-hurt { animation: monster-hurt 0.3s ease-in-out; }
+        .floating-text { animation: floating-up 1s ease-out forwards; }
+        .anim-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .anim-float { animation: float 3s ease-in-out infinite; }
+
+        /* Numpad Button Styles */
+        .btn-numpad {
+            background: linear-gradient(145deg, #334155, #1e293b);
+            box-shadow:  4px 4px 8px #131a25, -4px -4px 8px #29384b;
+            transition: all 0.1s ease;
+        }
+        .btn-numpad:active {
+            background: #1e293b;
+            box-shadow: inset 4px 4px 8px #131a25, inset -4px -4px 8px #29384b;
+            transform: translateY(2px);
+        }
+        
+        .btn-action {
+            background: linear-gradient(145deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        .btn-action:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 5px rgba(37, 99, 235, 0.4);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="h-screen w-full"></div>
+
+    <script type="text/babel" data-presets="react,env">
+        const { useState, useEffect, useRef } = React;
+
+        // Constants
+        const COLORS = [
+            { id: 'red', hex: '#ef4444', name: 'قرمز آتشین' },
+            { id: 'blue', hex: '#3b82f6', name: 'آبی یخی' },
+            { id: 'green', hex: '#22c55e', name: 'سبز جنگلی' },
+            { id: 'purple', hex: '#a855f7', name: 'بنفش جادویی' },
+        ];
+        
+        const MAX_HP = 3;
+
+        const generateQuestion = (level) => {
+            const ops = ['+', '-', '×', '÷'];
+            const op = ops[Math.floor(Math.random() * ops.length)];
+
+            // Scaling difficulty based on level
+            // Addition/Subtraction max 3 digits (up to 999)
+            let maxAdd = Math.min(999, 10 + (level * 25)); 
+            
+            // Multiplication/Division max 2 digits (up to 99)
+            let maxMul = Math.min(99, 3 + (level * 3));
+
+            let num1, num2, answer;
+
+            if (op === '+') {
+                num1 = Math.floor(Math.random() * maxAdd) + 1;
+                num2 = Math.floor(Math.random() * maxAdd) + 1;
+                answer = num1 + num2;
+            } else if (op === '-') {
+                num1 = Math.floor(Math.random() * maxAdd) + 1;
+                num2 = Math.floor(Math.random() * maxAdd) + 1;
+                // Ensure positive answers
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                answer = num1 - num2;
+            } else if (op === '×') {
+                num1 = Math.floor(Math.random() * maxMul) + 1;
+                num2 = Math.floor(Math.random() * maxMul) + 1;
+                answer = num1 * num2;
+            } else if (op === '÷') {
+                // Ensure whole numbers for division
+                num2 = Math.floor(Math.random() * maxMul) + 1;
+                answer = Math.floor(Math.random() * maxMul) + 1;
+                num1 = num2 * answer; // Create a valid dividend
+            }
+
+            return { num1, num2, op, answer };
+        };
+
+        const HeroSVG = ({ colorHex, animClass }) => (
+            <div className={`relative w-24 h-24 md:w-32 md:h-32 ${animClass}`}>
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
+                    {/* Cape */}
+                    <path d="M20 40 L10 90 L40 85 Z" fill={colorHex} opacity="0.8"/>
+                    {/* Body */}
+                    <rect x="30" y="40" width="40" height="40" rx="10" fill={colorHex} />
+                    {/* Head */}
+                    <circle cx="50" cy="30" r="20" fill="#fcd34d" />
+                    {/* Eyes */}
+                    <circle cx="43" cy="25" r="3" fill="#1e293b" />
+                    <circle cx="57" cy="25" r="3" fill="#1e293b" />
+                    {/* Bandana */}
+                    <path d="M28 15 Q50 25 72 15 L70 20 Q50 30 30 20 Z" fill={colorHex} />
+                    {/* Sword */}
+                    <path d="M70 50 L95 25 L90 20 L65 45 Z" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2"/>
+                    <circle cx="65" cy="50" r="5" fill="#fbbf24" />
+                </svg>
+            </div>
+        );
+
+        const MonsterSVG = ({ level, animClass }) => {
+            // Change monster style based on level tier
+            const isBoss = level % 5 === 0;
+            const color = isBoss ? '#ef4444' : '#10b981';
+            
+            return (
+                <div className={`relative w-24 h-24 md:w-32 md:h-32 ${animClass} anim-float`}>
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-2xl">
+                        {/* Slime Body */}
+                        <path d={`M10 80 Q50 ${isBoss ? '0' : '20'} 90 80 Q50 100 10 80 Z`} fill={color} />
+                        {/* Eyes */}
+                        <circle cx="40" cy="60" r="5" fill="#fff" />
+                        <circle cx="60" cy="60" r="5" fill="#fff" />
+                        <circle cx="40" cy="60" r="2" fill="#000" />
+                        <circle cx="60" cy="60" r="2" fill="#000" />
+                        {/* Angry Eyebrows for boss */}
+                        {isBoss && (
+                            <>
+                                <line x1="30" y1="50" x2="45" y2="55" stroke="#000" strokeWidth="3" strokeLinecap="round"/>
+                                <line x1="70" y1="50" x2="55" y2="55" stroke="#000" strokeWidth="3" strokeLinecap="round"/>
+                            </>
+                        )}
+                    </svg>
+                    {isBoss && <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold text-red-500 bg-red-100 px-2 rounded-full border border-red-500">BOSS</div>}
+                </div>
+            )
+        };
+
+        const HeartIcon = ({ filled }) => (
+            <svg viewBox="0 0 24 24" className={`w-6 h-6 md:w-8 md:h-8 ${filled ? 'text-red-500' : 'text-slate-600'}`} fill="currentColor">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+        );
+
+        const App = () => {
+            // States
+            const [gameState, setGameState] = useState('menu'); // 'menu', 'playing', 'gameover'
+            const [player, setPlayer] = useState({ name: '', color: COLORS[0], hp: MAX_HP, xp: 0, level: 1, score: 0 });
+            const [monster, setMonster] = useState({ hp: 1, maxHp: 1 });
+            const [question, setQuestion] = useState(null);
+            const [inputVal, setInputVal] = useState('');
+            const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', text: '', floatText: '' }
+            
+            // Animation States
+            const [heroAnim, setHeroAnim] = useState('');
+            const [monsterAnim, setMonsterAnim] = useState('');
+
+            // Init question when playing starts
+            useEffect(() => {
+                if (gameState === 'playing' && !question) {
+                    spawnNewMonster(player.level);
+                }
+            }, [gameState]);
+
+            const spawnNewMonster = (lvl) => {
+                const maxHp = lvl % 5 === 0 ? 3 : 1; // Bosses have 3 HP, normal 1 HP
+                setMonster({ hp: maxHp, maxHp });
+                setQuestion(generateQuestion(lvl));
+                setInputVal('');
+            };
+
+            const triggerAnim = (setter, animName) => {
+                setter(animName);
+                setTimeout(() => setter(''), 400); // clear after animation duration
+            };
+
+            const showFeedback = (type, text, floatText) => {
+                setFeedback({ type, text, floatText });
+                setTimeout(() => setFeedback(null), 2000);
+            };
+
+            const handleSubmit = () => {
+                if (inputVal === '') return;
+                
+                const isCorrect = parseInt(inputVal) === question.answer;
+
+                if (isCorrect) {
+                    // Correct Answer Logic
+                    triggerAnim(setHeroAnim, 'anim-attack');
+                    
+                    setTimeout(() => {
+                        triggerAnim(setMonsterAnim, 'anim-monster-hurt');
+                        
+                        let newMonsterHp = monster.hp - 1;
+                        let gainedXp = 20 + (player.level * 5);
+                        let newScore = player.score + (10 * player.level);
+                        let newXp = player.xp + gainedXp;
+                        let newLevel = player.level;
+                        
+                        const xpNeeded = newLevel * 100;
+
+                        if (newXp >= xpNeeded) {
+                            newLevel++;
+                            newXp = newXp - xpNeeded;
+                            showFeedback('success', `سطح ارتقا یافت! (سطح ${newLevel})`, `+${gainedXp} XP`);
+                        } else {
+                            showFeedback('success', 'آفرین! قدرت ضربه زدی.', `+${gainedXp} XP`);
+                        }
+
+                        if (newMonsterHp <= 0) {
+                            // Monster Defeated
+                            setPlayer({ ...player, xp: newXp, level: newLevel, score: newScore });
+                            setTimeout(() => spawnNewMonster(newLevel), 500);
+                        } else {
+                            // Monster alive
+                            setMonster({ ...monster, hp: newMonsterHp });
+                            setPlayer({ ...player, xp: newXp, level: newLevel, score: newScore });
+                            setQuestion(generateQuestion(newLevel));
+                            setInputVal('');
+                        }
+                    }, 150); // delay monster hurt to sync with attack anim
+
+                } else {
+                    // Wrong Answer Logic
+                    triggerAnim(setHeroAnim, 'anim-hurt');
+                    showFeedback('error', `اشتباه بود! جواب صحیح: ${question.answer}`, '-1 ♥');
+                    
+                    const newHp = player.hp - 1;
+                    setPlayer({ ...player, hp: newHp });
+                    
+                    if (newHp <= 0) {
+                        setTimeout(() => setGameState('gameover'), 500);
+                    } else {
+                        // Clear input to try again or generate new question
+                        setQuestion(generateQuestion(player.level));
+                        setInputVal('');
+                    }
+                }
+            };
+
+            const handleNumpad = (val) => {
+                if (inputVal.length < 5) {
+                    setInputVal(prev => prev + val);
+                }
+            };
+
+            const handleDel = () => {
+                setInputVal(prev => prev.slice(0, -1));
+            };
+
+            if (gameState === 'menu') {
+                return (
+                    <div className="h-full w-full flex flex-col items-center justify-center p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9zdmc+')]">
+                        <div className="glass-panel p-8 rounded-3xl shadow-2xl w-full max-w-md text-center anim-pop border border-slate-700">
+                            <h1 className="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+                                قهرمان ریاضی
+                            </h1>
+                            <p className="text-slate-400 mb-8">معادلات را حل کن و قدرت بگیر!</p>
+
+                            <div className="mb-6">
+                                <label className="block text-right text-sm text-slate-300 mb-2">نام قهرمان:</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-600 focus:border-blue-500 focus:outline-none transition-colors text-right"
+                                    placeholder="نام خود را وارد کنید..."
+                                    value={player.name}
+                                    onChange={(e) => setPlayer({ ...player, name: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="mb-8">
+                                <label className="block text-right text-sm text-slate-300 mb-2">رنگ لباس:</label>
+                                <div className="flex justify-between gap-2">
+                                    {COLORS.map(c => (
+                                        <button 
+                                            key={c.id}
+                                            onClick={() => setPlayer({ ...player, color: c })}
+                                            className={`w-12 h-12 rounded-full border-4 transition-transform ${player.color.id === c.id ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                            style={{ backgroundColor: c.hex }}
+                                            title={c.name}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-center mb-6">
+                                <HeroSVG colorHex={player.color.hex} animClass="" />
+                            </div>
+
+                            <button 
+                                onClick={() => setGameState('playing')}
+                                disabled={!player.name.trim()}
+                                className="w-full btn-action text-white font-bold text-lg py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                شروع ماجراجویی
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'gameover') {
+                return (
+                    <div className="h-full w-full flex flex-col items-center justify-center p-6">
+                        <div className="glass-panel p-8 rounded-3xl shadow-2xl w-full max-w-md text-center anim-pop">
+                            <h2 className="text-4xl font-black text-red-500 mb-4">بازی تمام شد!</h2>
+                            <p className="text-slate-300 mb-2">قهرمان <span className="font-bold text-white">{player.name}</span></p>
+                            
+                            <div className="bg-slate-800 rounded-xl p-4 mb-6">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-slate-400">سطح نهایی:</span>
+                                    <span className="text-2xl font-bold text-yellow-400">{player.level}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-slate-400">امتیاز کل:</span>
+                                    <span className="text-2xl font-bold text-blue-400">{player.score}</span>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={() => {
+                                    setPlayer({ ...player, hp: MAX_HP, xp: 0, level: 1, score: 0 });
+                                    setGameState('playing');
+                                }}
+                                className="w-full btn-action text-white font-bold py-4 rounded-xl"
+                            >
+                                بازی مجدد
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setPlayer({ name: '', color: COLORS[0], hp: MAX_HP, xp: 0, level: 1, score: 0 });
+                                    setGameState('menu');
+                                }}
+                                className="w-full mt-3 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl transition-colors"
+                            >
+                                تغییر قهرمان
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const xpPercent = (player.xp / (player.level * 100)) * 100;
+
+            return (
+                <div className="h-full w-full flex flex-col relative bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvc3ZnPg==')]">
+                    
+                    {/* Top Bar Status */}
+                    <div className="glass-panel p-4 flex justify-between items-center sticky top-0 z-10 border-b border-slate-700">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-lg text-white">{player.name}</span>
+                            <span className="text-xs text-yellow-400">امتیاز: {player.score}</span>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                            <span className="text-sm font-bold text-blue-300 mb-1">سطح {player.level}</span>
+                            <div className="w-24 h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${xpPercent}%` }}></div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-1" dir="ltr">
+                            {[...Array(MAX_HP)].map((_, i) => (
+                                <HeartIcon key={i} filled={i < player.hp} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Battle Arena */}
+                    <div className="flex-1 flex items-center justify-between px-6 md:px-20 relative overflow-hidden bg-gradient-to-b from-transparent to-slate-800/50">
+                        
+                        {/* Floating Feedback Text */}
+                        {feedback && feedback.floatText && (
+                            <div className={`absolute top-1/3 left-1/2 -translate-x-1/2 font-black text-2xl floating-text z-20 ${feedback.type === 'success' ? 'text-green-400' : 'text-red-500'}`}>
+                                {feedback.floatText}
+                            </div>
+                        )}
+
+                        {/* Monster (Left side due to RTL, visually right) */}
+                        <div className="flex flex-col items-center relative">
+                            <div className="text-xs font-bold text-red-400 mb-2">
+                                HP: {monster.hp}/{monster.maxHp}
+                            </div>
+                            <MonsterSVG level={player.level} animClass={monsterAnim} />
+                        </div>
+
+                        {/* Hero (Right side due to RTL, visually left) */}
+                        <div className="flex flex-col items-center z-10">
+                            <HeroSVG colorHex={player.color.hex} animClass={heroAnim} />
+                        </div>
+                    </div>
+
+                    {/* Question Box (Overlayed) */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[80%] z-20">
+                        {question && (
+                            <div className="glass-panel px-8 py-4 rounded-2xl shadow-xl border border-blue-500/30 text-center anim-pop">
+                                <div className="text-4xl md:text-5xl font-black text-white tracking-wider flex items-center gap-3" dir="ltr">
+                                    <span>{question.num1}</span>
+                                    <span className="text-yellow-400">{question.op}</span>
+                                    <span>{question.num2}</span>
+                                    <span className="text-blue-400">=</span>
+                                    <span className="text-green-400 w-16 text-center border-b-4 border-slate-600 pb-1">{inputVal || '?'}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Toast Feedback Message */}
+                    <div className="h-12 flex items-center justify-center">
+                        {feedback && (
+                            <div className={`px-6 py-2 rounded-full font-bold text-sm md:text-base anim-pop ${feedback.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-500/50' : 'bg-red-500/20 text-red-300 border border-red-500/50'}`}>
+                                {feedback.text}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Custom Numpad */}
+                    <div className="glass-panel p-4 md:p-6 rounded-t-3xl border-t border-slate-700">
+                        <div className="max-w-md mx-auto grid grid-cols-3 gap-3 md:gap-4" dir="ltr">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                                <button 
+                                    key={num} 
+                                    onClick={() => handleNumpad(num.toString())}
+                                    className="btn-numpad text-white text-2xl font-bold py-4 md:py-6 rounded-2xl"
+                                >
+                                    {num}
+                                </button>
+                            ))}
+                            <button 
+                                onClick={handleDel}
+                                className="btn-numpad text-red-400 text-xl font-bold py-4 md:py-6 rounded-2xl flex items-center justify-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M6.707 4.879A3 3 0 018.828 4H15a3 3 0 013 3v6a3 3 0 01-3 3H8.828a3 3 0 01-2.12-.879l-4.415-4.414a1 1 0 010-1.414l4.414-4.414zm4 2.414a1 1 0 00-1.414 1.414L10.586 10l-1.293 1.293a1 1 0 101.414 1.414L12 11.414l1.293 1.293a1 1 0 001.414-1.414L13.414 10l1.293-1.293a1 1 0 00-1.414-1.414L12 8.586l-1.293-1.293z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                            <button 
+                                onClick={() => handleNumpad('0')}
+                                className="btn-numpad text-white text-2xl font-bold py-4 md:py-6 rounded-2xl"
+                            >
+                                0
+                            </button>
+                            <button 
+                                onClick={handleSubmit}
+                                className="btn-action text-white text-xl font-bold py-4 md:py-6 rounded-2xl flex items-center justify-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ماجراجوی ریاضی - Math Quest</title>
+  <style>
+    /* ========== CSS Variables ========== */
+    :root {
+      --primary: #6C5CE7;
+      --primary-dark: #5A4BD1;
+      --secondary: #00CEC9;
+      --accent: #FDCB6E;
+      --accent-dark: #E6B800;
+      --danger: #FF6B6B;
+      --danger-dark: #E05555;
+      --success: #00B894;
+      --success-dark: #00A080;
+      --info: #74B9FF;
+      --bg-main: #0F0E1A;
+      --bg-card: rgba(255, 255, 255, 0.06);
+      --bg-card-hover: rgba(255, 255, 255, 0.1);
+      --text: #F5F5F5;
+      --text-muted: #A0A0B8;
+      --text-dark: #1A1A2E;
+      --shadow: 0 8px 32px rgba(0,0,0,0.3);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      --font-main: 'Segoe UI', 'Vazir', 'Tahoma', system-ui, sans-serif;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ========== Reset & Base ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-main);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(108,92,231,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,206,201,0.08) 0%, transparent 50%);
+    }
+    input, button { font-family: inherit; border: none; outline: none; }
+    button { cursor: pointer; }
+    a { color: var(--secondary); text-decoration: none; }
+
+    /* ========== Scrollbar ========== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    /* ========== App Shell ========== */
+    #app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    @media (min-width: 600px) {
+      #app { max-width: 560px; padding: 20px 24px; }
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.4s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== Typography ========== */
+    h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+    h2 { font-size: 1.5rem; font-weight: 700; }
+    h3 { font-size: 1.2rem; font-weight: 600; }
+    p  { line-height: 1.6; }
+
+    /* ========== Buttons ========== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 28px; border-radius: var(--radius-sm);
+      font-size: 1rem; font-weight: 600;
+      transition: all var(--transition);
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .btn:hover { background: var(--bg-card-hover); transform: translateY(-1px); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #8B7CF7);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 20px rgba(108,92,231,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 28px rgba(108,92,231,0.5); transform: translateY(-2px); }
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #00D9A6);
+      color: #fff; border: none;
+      box-shadow: 0 4px 20px rgba(0,184,148,0.35);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #FF8E8E);
+      color: #fff; border: none;
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), #FFE08A);
+      color: var(--text-dark); border: none;
+      box-shadow: 0 4px 20px rgba(253,203,110,0.35);
+    }
+    .btn-lg { padding: 16px 40px; font-size: 1.15rem; border-radius: var(--radius); }
+    .btn-block { width: 100%; }
+    .btn-icon { width: 48px; height: 48px; padding: 0; border-radius: 50%; font-size: 1.3rem; }
+    .btn:disabled { opacity: 0.4; pointer-events: none; }
+
+    /* ========== Cards ========== */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--shadow);
+    }
+    .card-glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+    }
+
+    /* ========== Screen 1: Menu ========== */
+    #menu-screen {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 20px;
+      padding: 20px 0;
+    }
+    .menu-logo {
+      font-size: 3rem;
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      box-shadow: 0 8px 40px rgba(108,92,231,0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .menu-title { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .menu-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: -8px; }
+    .menu-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px; margin-top: 12px; }
+    .menu-version { color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 20px; }
+
+    /* ========== Screen 2: Customize ========== */
+    #customize-screen { gap: 16px; }
+    .customize-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .customize-header h2 { font-size: 1.3rem; }
+    .customize-preview {
+      display: flex; justify-content: center; align-items: center;
+      padding: 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .customize-preview svg { width: 120px; height: 160px; }
+    .customize-section { }
+    .customize-section-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+    .customize-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-swatch {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid transparent;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.3); transform: scale(1.1); }
+    .skin-swatch {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid transparent;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .skin-swatch:hover { transform: scale(1.12); }
+    .skin-swatch.active { border-color: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.3); }
+    .accessory-btn {
+      padding: 8px 16px; border-radius: var(--radius-xs);
+      background: var(--bg-card); color: var(--text);
+      font-size: 0.9rem; font-weight: 500;
+      border: 2px solid transparent;
+      transition: all var(--transition);
+    }
+    .accessory-btn:hover { background: var(--bg-card-hover); }
+    .accessory-btn.active { border-color: var(--primary); background: rgba(108,92,231,0.2); }
+    .name-input {
+      width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
+      background: var(--bg-card); color: var(--text);
+      font-size: 1rem; border: 2px solid rgba(255,255,255,0.08);
+      transition: border var(--transition);
+    }
+    .name-input:focus { border-color: var(--primary); }
+    .customize-actions { display: flex; gap: 10px; margin-top: 4px; }
+
+    /* ========== Screen 3: Game ========== */
+    #game-screen { gap: 0; }
+
+    /* Top Stats Bar */
+    .stats-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .stats-bar .avatar-mini {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .stats-bar .avatar-mini svg { width: 36px; height: 48px; }
+    .stats-info { flex: 1; min-width: 0; }
+    .stats-name { font-weight: 700; font-size: 0.85rem; }
+    .stats-level { font-size: 0.7rem; color: var(--text-muted); }
+    .stats-values { display: flex; gap: 12px; align-items: center; }
+    .stat-item { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; }
+    .stat-icon { font-size: 0.9rem; }
+    .stat-value { font-weight: 700; }
+
+    /* Progress bars */
+    .progress-container { margin-bottom: 8px; flex-shrink: 0; }
+    .progress-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .progress-row:last-child { margin-bottom: 0; }
+    .progress-label { font-size: 0.7rem; color: var(--text-muted); min-width: 36px; }
+    .progress-track {
+      flex: 1; height: 8px; border-radius: 4px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .progress-fill-power {
+      background: linear-gradient(90deg, var(--primary), #A29BFE);
+    }
+    .progress-fill-health {
+      background: linear-gradient(90deg, var(--danger), #FF8E8E);
+    }
+    .progress-fill-streak {
+      background: linear-gradient(90deg, var(--accent), #FFE08A);
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .progress-text { font-size: 0.7rem; color: var(--text-muted); min-width: 50px; text-align: left; }
+
+    /* Question Area */
+    .question-area {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 12px 0;
+      min-height: 200px;
+    }
+    .question-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .question-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+    }
+    .question-number { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+    .question-prompt {
+      font-size: 2.2rem; font-weight: 800;
+      margin: 8px 0;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .question-prompt .num { color: var(--text); }
+    .question-prompt .op {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 50%;
+      font-size: 1.5rem; font-weight: 700;
+    }
+    .op-add { background: rgba(0,206,201,0.2); color: var(--secondary); }
+    .op-sub { background: rgba(255,107,107,0.2); color: var(--danger); }
+    .op-mul { background: rgba(253,203,110,0.2); color: var(--accent); }
+    .op-div { background: rgba(116,185,255,0.2); color: var(--info); }
+    .question-prompt .eq { color: var(--text-muted); font-size: 1.8rem; }
+    .question-prompt .qmark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 60px; height: 60px; border-radius: var(--radius-sm);
+      background: rgba(108,92,231,0.15);
+      border: 2px dashed rgba(108,92,231,0.4);
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+
+    /* Answer Input */
+    .answer-row {
+      display: flex; gap: 10px; margin-top: 16px; justify-content: center;
+      width: 100%; max-width: 320px;
+    }
+    .answer-input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 1.4rem; font-weight: 700;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.08);
+      transition: all var(--transition);
+      -moz-appearance: textfield;
+      min-width: 0;
+    }
+    .answer-input::-webkit-outer-spin-button,
+    .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .answer-input:focus { border-color: var(--primary); background: rgba(108,92,231,0.08); }
+    .answer-input.correct { border-color: var(--success); background: rgba(0,184,148,0.1); }
+    .answer-input.wrong { border-color: var(--danger); background: rgba(255,107,107,0.1); animation: shake 0.5s ease; }
+    .answer-submit { padding: 14px 24px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700; }
+
+    /* Number Pad (mobile friendly) */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      width: 100%;
+      max-width: 320px;
+      margin-top: 10px;
+    }
+    .numpad-btn {
+      padding: 14px 0;
+      border-radius: var(--radius-xs);
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 1.3rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all var(--transition);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .numpad-btn:hover { background: var(--bg-card-hover); }
+    .numpad-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.12); }
+    .numpad-btn-fn { color: var(--accent); font-size: 1rem; }
+    .numpad-btn-submit { background: var(--primary); color: #fff; border: none; }
+    .numpad-btn-submit:hover { background: var(--primary-dark); }
+    .numpad-btn-del { color: var(--danger); }
+
+    /* Feedback overlay */
+    .feedback-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+    }
+    .feedback-badge {
+      padding: 20px 40px;
+      border-radius: var(--radius);
+      font-size: 2rem; font-weight: 800;
+      animation: feedbackPop 0.8s ease forwards;
+      pointer-events: none;
+    }
+    .feedback-badge.correct-badge {
+      background: linear-gradient(135deg, rgba(0,184,148,0.9), rgba(0,217,166,0.9));
+      color: #fff;
+      box-shadow: 0 8px 40px rgba(0,184,148,0.4);
+    }
+    .feedback-badge.wrong-badge {
+      background: linear-gradient(135deg, rgba(255,107,107,0.9), rgba(255,142,142,0.9));
+      color: #fff;
+      box-shadow: 0 8px 40px rgba(255,107,107,0.4);
+    }
+    @keyframes feedbackPop {
+      0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+      30% { opacity: 1; transform: scale(1.1) translateY(0); }
+      60% { transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .feedback-correct-answer {
+      font-size: 0.9rem; font-weight: 400; opacity: 0.8; direction: ltr;
+    }
+
+    /* Streak indicator */
+    .streak-indicator {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(253,203,110,0.12);
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--accent);
+      margin-top: 8px;
+    }
+    .streak-indicator.on-fire { background: rgba(253,203,110,0.25); }
+
+    /* ========== Screen 4: Boss Battle ========== */
+    #boss-screen {
+      align-items: center; justify-content: center;
+      text-align: center; gap: 20px;
+    }
+    .boss-icon { font-size: 5rem; animation: bossPulse 1.5s ease-in-out infinite; }
+    @keyframes bossPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .boss-title { font-size: 1.8rem; font-weight: 800; color: var(--danger); }
+    .boss-desc { color: var(--text-muted); max-width: 300px; }
+    .boss-streak-dots { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+    .boss-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      transition: all 0.4s ease;
+    }
+    .boss-dot.done { background: var(--success); box-shadow: 0 0 12px rgba(0,184,148,0.4); }
+    .boss-dot.fail { background: var(--danger); }
+
+    /* ========== Screen 5: Level Up ========== */
+    #levelup-screen {
+      align-items: center; justify-content: center;
+      text-align: center; gap: 16px;
+    }
+    .levelup-icon { font-size: 4rem; animation: levelUpBounce 1s ease infinite; }
+    @keyframes levelUpBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-15px) scale(1.1); }
+    }
+    .levelup-title { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .levelup-detail { color: var(--text-muted); }
+
+    /* ========== Screen 6: Game Over ========== */
+    #gameover-screen {
+      align-items: center; justify-content: center;
+      text-align: center; gap: 16px;
+    }
+    .gameover-icon { font-size: 4rem; }
+    .gameover-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 300px; }
+    .gameover-stat {
+      background: var(--bg-card); border-radius: var(--radius-sm);
+      padding: 12px; border: 1px solid rgba(255,255,255,0.06);
+    }
+    .gameover-stat-value { font-size: 1.3rem; font-weight: 700; }
+    .gameover-stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ========== Confetti / Particles ========== */
+    .confetti-container {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; z-index: 100;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute; width: 8px; height: 8px;
+      top: -10px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ========== Floating Particles Background ========== */
+    .bg-particles { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+    .bg-particle {
+      position: absolute; border-radius: 50%;
+      animation: bgFloat linear infinite;
+      opacity: 0.15;
+    }
+    @keyframes bgFloat {
+      0% { transform: translateY(100vh) rotate(0deg); }
+      100% { transform: translateY(-10vh) rotate(360deg); }
+    }
+
+    /* ========== Shake ========== */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* ========== Utility ========== */
+    .mt-auto { margin-top: auto; }
+    .mb-auto { margin-bottom: auto; }
+    .text-center { text-align: center; }
+    .text-muted { color: var(--text-muted); }
+    .text-success { color: var(--success); }
+    .text-danger { color: var(--danger); }
+    .text-accent { color: var(--accent); }
+    .gap-sm { gap: 8px; }
+    .gap-md { gap: 16px; }
+    .flex-col { display: flex; flex-direction: column; }
+    .flex-center { display: flex; align-items: center; justify-content: center; }
+    .w-full { width: 100%; }
+    .hidden { display: none !important; }
+
+    /* Gooey dots loader */
+    .loader-dots { display: flex; gap: 6px; justify-content: center; padding: 20px; }
+    .loader-dots span {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--primary);
+      animation: dotBounce 0.8s ease infinite alternate;
+    }
+    .loader-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .loader-dots span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes dotBounce {
+      from { transform: translateY(0); opacity: 0.3; }
+      to { transform: translateY(-12px); opacity: 1; }
+    }
+
+    /* Mission notification */
+    .mission-popup {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 60;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    .mission-popup-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 59;
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ==================== SCREEN 1: MENU ==================== -->
+  <div id="menu-screen" class="screen active">
+    <div class="menu-logo">🧙</div>
+    <h1 class="menu-title">ماجراجوی ریاضی</h1>
+    <p class="menu-subtitle">با قدرت ریاضی، قهرمان شو!</p>
+    <div class="menu-buttons">
+      <button class="btn btn-primary btn-lg btn-block" onclick="startGame()">🚀 شروع بازی</button>
+      <button class="btn btn-block" onclick="showScreen('customize-screen')">🎨 شخصی‌سازی</button>
+      <button class="btn btn-block" onclick="showHowToPlay()">📖 راهنما</button>
+    </div>
+    <p class="menu-version">نسخه ۱.۰</p>
+  </div>
+
+  <!-- ==================== SCREEN 2: CUSTOMIZE ==================== -->
+  <div id="customize-screen" class="screen">
+    <div class="customize-header">
+      <button class="btn btn-icon" onclick="showScreen('menu-screen')">←</button>
+      <h2>🎨 شخصی‌سازی شخصیت</h2>
+    </div>
+
+    <div class="customize-preview" id="customize-preview">
+      <!-- SVG rendered by JS -->
+    </div>
+
+    <div class="customize-section">
+      <div class="customize-section-label">✏️ نام قهرمان</div>
+      <input class="name-input" id="name-input" type="text" placeholder="نام خود را وارد کنید..." maxlength="12" value="آریا">
+    </div>
+
+    <div class="customize-section">
+      <div class="customize-section-label">👕 رنگ لباس</div>
+      <div class="customize-options" id="color-options"></div>
+    </div>
+
+    <div class="customize-section">
+      <div class="customize-section-label">🧑 پوست</div>
+      <div class="customize-options" id="skin-options"></div>
+    </div>
+
+    <div class="customize-section">
+      <div class="customize-section-label">🎭 اکسسوری</div>
+      <div class="customize-options" id="accessory-options"></div>
+    </div>
+
+    <div class="customize-actions mt-auto">
+      <button class="btn btn-block" onclick="showScreen('menu-screen')">انصراف</button>
+      <button class="btn btn-primary btn-block" onclick="applyCustomization()">✓ تأیید و شروع</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: GAME ==================== -->
+  <div id="game-screen" class="screen">
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="avatar-mini" id="mini-avatar"></div>
+      <div class="stats-info">
+        <div class="stats-name" id="stats-name">آریا</div>
+        <div class="stats-level" id="stats-level">سطح ۱</div>
+      </div>
+      <div class="stats-values">
+        <div class="stat-item"><span class="stat-icon">⚡</span><span class="stat-value" id="stats-power">0</span></div>
+        <div class="stat-item"><span class="stat-icon">❤️</span><span class="stat-value" id="stats-health">100</span></div>
+        <div class="stat-item"><span class="stat-icon">🪙</span><span class="stat-value" id="stats-coins">0</span></div>
+      </div>
+    </div>
+
+    <!-- Progress Bars -->
+    <div class="progress-container">
+      <div class="progress-row">
+        <span class="progress-label">⚡</span>
+        <div class="progress-track"><div class="progress-fill progress-fill-power" id="power-bar" style="width:0%"></div></div>
+        <span class="progress-text" id="power-text">0/100</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">❤️</span>
+        <div class="progress-track"><div class="progress-fill progress-fill-health" id="health-bar" style="width:100%"></div></div>
+        <span class="progress-text" id="health-text">100</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">🔥</span>
+        <div class="progress-track"><div class="progress-fill progress-fill-streak" id="streak-bar" style="width:0%"></div></div>
+        <span class="progress-text" id="streak-text">0</span>
+      </div>
+    </div>
+
+    <!-- Question Area -->
+    <div class="question-area">
+      <div class="question-card" id="question-card">
+        <div class="question-number" id="question-number">سوال #۱</div>
+        <div class="question-prompt" id="question-prompt">
+          <span class="num" id="q-num1">12</span>
+          <span class="op op-add" id="q-op">+</span>
+          <span class="num" id="q-num2">34</span>
+          <span class="eq">=</span>
+          <span class="qmark" id="q-answer-box">?</span>
+        </div>
+
+        <div class="answer-row" id="answer-row">
+          <input class="answer-input" id="answer-input" type="number" inputmode="numeric"
+                 placeholder="پاسخ..." autocomplete="off" enterkeyhint="go">
+          <button class="btn btn-primary answer-submit" id="answer-submit" onclick="submitAnswer()">✓</button>
+        </div>
+
+        <!-- Number pad -->
+        <div class="numpad" id="numpad">
+          <button class="numpad-btn" onclick="numpadPress('7')">7</button>
+          <button class="numpad-btn" onclick="numpadPress('8')">8</button>
+          <button class="numpad-btn" onclick="numpadPress('9')">9</button>
+          <button class="numpad-btn numpad-btn-del" onclick="numpadDelete()">⌫</button>
+          <button class="numpad-btn" onclick="numpadPress('4')">4</button>
+          <button class="numpad-btn" onclick="numpadPress('5')">5</button>
+          <button class="numpad-btn" onclick="numpadPress('6')">6</button>
+          <button class="numpad-btn numpad-btn-fn" onclick="numpadPress('-')">−</button>
+          <button class="numpad-btn" onclick="numpadPress('1')">1</button>
+          <button class="numpad-btn" onclick="numpadPress('2')">2</button>
+          <button class="numpad-btn" onclick="numpadPress('3')">3</button>
+          <button class="numpad-btn numpad-btn-fn" onclick="numpadClear()">C</button>
+          <button class="numpad-btn" onclick="numpadPress('0')" style="grid-column:span 2">0</button>
+          <button class="numpad-btn numpad-btn-submit" onclick="submitAnswer()" style="grid-column:span 2">✓ پاسخ</button>
+        </div>
+
+        <!-- Streak -->
+        <div class="streak-indicator hidden" id="streak-indicator">
+          <span>🔥</span>
+          <span id="streak-count">۰</span>
+          <span>تای متوالی</span>
+          <span id="streak-multiplier" style="margin-right:auto;font-size:0.75rem;opacity:0.7">×1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 4: BOSS ==================== -->
+  <div id="boss-screen" class="screen">
+    <div class="boss-icon">🐉</div>
+    <h2 class="boss-title">🚀 مأموریت ویژه!</h2>
+    <p class="boss-desc">برای عبور از این مرحله، <span id="boss-required">۳</span> سوال را پشت سر هم درست پاسخ بده!</p>
+    <div class="boss-streak-dots" id="boss-dots"></div>
+    <div id="boss-question-area" class="w-full" style="max-width:320px">
+      <!-- Same question format injected here -->
+    </div>
+    <button class="btn btn-danger btn-lg" id="boss-retry-btn" onclick="startBossBattle()" style="display:none">🔄 تلاش دوباره</button>
+    <button class="btn btn-accent btn-lg" id="boss-skip-btn" onclick="skipBoss()">🏃 رد کردن (❤️ -۱۵)</button>
+  </div>
+
+  <!-- ==================== SCREEN 5: LEVEL UP ==================== -->
+  <div id="levelup-screen" class="screen">
+    <div class="levelup-icon">🎉</div>
+    <h2 class="levelup-title">↑ سطح بالا رفت!</h2>
+    <p class="levelup-detail">تبریک! به <strong id="levelup-new-level">سطح ۲</strong> رسیدی!</p>
+    <div class="loader-dots"><span></span><span></span><span></span></div>
+    <button class="btn btn-primary btn-lg" onclick="continueAfterLevelUp()" style="display:none" id="levelup-continue">🔥 ادامه ماجراجویی</button>
+  </div>
+
+  <!-- ==================== SCREEN 6: GAME OVER ==================== -->
+  <div id="gameover-screen" class="screen">
+    <div class="gameover-icon">💀</div>
+    <h2 style="color:var(--danger)">پایان بازی</h2>
+    <p class="text-muted">قدرتت تمام شد! اما می‌تونی دوباره شروع کنی 💪</p>
+    <div class="gameover-stats">
+      <div class="gameover-stat"><div class="gameover-stat-value" id="go-level">۱</div><div class="gameover-stat-label">سطح</div></div>
+      <div class="gameover-stat"><div class="gameover-stat-value" id="go-score">۰</div><div class="gameover-stat-label">امتیاز نهایی</div></div>
+      <div class="gameover-stat"><div class="gameover-stat-value" id="go-correct">۰</div><div class="gameover-stat-label">پاسخ درست</div></div>
+      <div class="gameover-stat"><div class="gameover-stat-value" id="go-wrong">۰</div><div class="gameover-stat-label">پاسخ غلط</div></div>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn btn-primary btn-lg btn-block" onclick="restartGame()">🔄 دوباره!</button>
+      <button class="btn btn-block" onclick="showScreen('menu-screen')">🏠 صفحه اصلی</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback overlay (global) -->
+<div class="feedback-overlay" id="feedback-overlay"></div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- Particles background -->
+<div class="bg-particles" id="bg-particles"></div>
+
+<script>
+// ===================================================================
+//  MATH QUEST - Full Game Logic
+// ===================================================================
+
+// ==================== CONFIGURATION ====================
+const COLORS = [
+  { id: 'purple', hex: '#6C5CE7', label: 'بنفش' },
+  { id: 'red',    hex: '#E17055', label: 'قرمز' },
+  { id: 'blue',   hex: '#0984E3', label: 'آبی' },
+  { id: 'green',  hex: '#00B894', label: 'سبز' },
+  { id: 'pink',   hex: '#FD79A8', label: 'صورتی' },
+  { id: 'orange', hex: '#FDCB6E', label: 'نارنجی' },
+  { id: 'cyan',   hex: '#00CEC9', label: 'فیروزه‌ای' },
+  { id: 'lime',   hex: '#A8E6CF', label: 'لیمویی' },
+];
+const SKIN_TONES = [
+  { id: 'light',  hex: '#FFDCB5', label: 'روشن' },
+  { id: 'medium', hex: '#D4A574', label: 'متوسط' },
+  { id: 'tan',    hex: '#C68E59', label: 'برنزه' },
+  { id: 'dark',   hex: '#8D5524', label: 'تیره' },
+];
+const ACCESSORIES = [
+  { id: 'none',   label: 'بدون',    emoji: '' },
+  { id: 'crown',  label: 'تاج',     emoji: '👑' },
+  { id: 'glasses',label: 'عینک',    emoji: '👓' },
+  { id: 'hat',    label: 'کلاه',    emoji: '🧢' },
+  { id: 'cape',   label: 'شنل',     emoji: '‍' },
+];
+
+const POWER_PER_LEVEL = 100;
+const MAX_HEALTH = 100;
+const BOSS_INTERVAL = 5; // boss every 5 levels
+const BOSS_REQUIRED = 4; // questions to pass boss
+
+// ==================== GAME STATE ====================
+const state = {
+  // Customization
+  playerName: 'آریا',
+  colorId: 'purple',
+  skinId: 'light',
+  accessoryId: 'none',
+
+  // Progression
+  level: 1,
+  power: 0,
+  health: MAX_HEALTH,
+  coins: 0,
+  streak: 0,
+  bestStreak: 0,
+
+  // Stats
+  totalCorrect: 0,
+  totalWrong: 0,
+  questionCount: 0,
+
+  // Game state
+  isPlaying: false,
+  isBossBattle: false,
+  currentAnswer: null,
+  bossProgress: 0,
+  isTransitioning: false,
+  questionsAnswered: 0,
+};
+
+// ==================== QUESTION GENERATOR ====================
+function generateQuestion() {
+  const level = state.level;
+  const opWeights = getOpWeights(level);
+  const rand = Math.random();
+  let op;
+  let cum = 0;
+  for (const [operation, weight] of Object.entries(opWeights)) {
+    cum += weight;
+    if (rand < cum) { op = operation; break; }
+  }
+
+  let a, b, answer, displayA, displayB;
+
+  switch (op) {
+    case '+': {
+      const maxDigits = level <= 3 ? 2 : 3;
+      const max = Math.pow(10, maxDigits) - 1;
+      const min = Math.pow(10, maxDigits - 1);
+      if (level <= 2) { a = randInt(1, 30); b = randInt(1, 30); }
+      else if (level <= 5) { a = randInt(10, 99); b = randInt(10, 99); }
+      else { a = randInt(10, max); b = randInt(10, max); }
+      answer = a + b;
+      break;
+    }
+    case '-': {
+      if (level <= 2) { a = randInt(2, 30); b = randInt(1, a); }
+      else if (level <= 5) { a = randInt(10, 99); b = randInt(1, a); }
+      else { a = randInt(50, 999); b = randInt(10, a); }
+      answer = a - b;
+      break;
+    }
+    case '×': {
+      if (level <= 2) { a = randInt(2, 5); b = randInt(2, 5); }
+      else if (level <= 4) { a = randInt(2, 9); b = randInt(2, 9); }
+      else if (level <= 6) { a = randInt(2, 15); b = randInt(2, 15); }
+      else if (level <= 8) { a = randInt(2, 30); b = randInt(2, 30); }
+      else { a = randInt(2, 99); b = randInt(2, 99); }
+      answer = a * b;
+      break;
+    }
+    case '÷': {
+      if (level <= 2) { b = randInt(2, 5); answer = randInt(1, 5); a = b * answer; }
+      else if (level <= 4) { b = randInt(2, 9); answer = randInt(1, 9); a = b * answer; }
+      else if (level <= 6) { b = randInt(2, 15); answer = randInt(2, 15); a = b * answer; }
+      else if (level <= 8) { b = randInt(2, 30); answer = randInt(2, 30); a = b * answer; }
+      else { b = randInt(2, 50); answer = randInt(2, 50); a = b * answer; }
+      break;
+    }
+  }
+
+  return { a, b, op, answer };
+}
+
+function getOpWeights(level) {
+  // All ops available from start, but weighted by level
+  const base = { '+': 0.3, '-': 0.3, '×': 0.2, '÷': 0.2 };
+  if (level <= 2) return { '+': 0.35, '-': 0.35, '×': 0.15, '÷': 0.15 };
+  if (level <= 4) return { '+': 0.3, '-': 0.3, '×': 0.2, '÷': 0.2 };
+  if (level <= 6) return { '+': 0.25, '-': 0.25, '×': 0.25, '÷': 0.25 };
+  return { '+': 0.2, '-': 0.2, '×': 0.3, '÷': 0.3 };
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// ==================== CHARACTER SVG GENERATOR ====================
+function generateCharacterSVG(colorHex, skinHex, accessoryId, size = 120) {
+  const w = size;
+  const h = Math.round(size * 1.3);
+  const cx = w / 2;
+  const headR = w * 0.22;
+  const headCY = h * 0.28;
+
+  let accessorySVG = '';
+  if (accessoryId === 'crown') {
+    accessorySVG = `
+      <path d="M${cx-20},${headCY-headR-5} L${cx-15},${headCY-headR-18} L${cx-8},${headCY-headR-10} L${cx},${headCY-headR-22} L${cx+8},${headCY-headR-10} L${cx+15},${headCY-headR-18} L${cx+20},${headCY-headR-5} Z" fill="#FDCB6E" stroke="#E6B800" stroke-width="1.5"/>
+      <circle cx="${cx-10}" cy="${headCY-headR-14}" r="2" fill="#FFEAA7"/>
+      <circle cx="${cx}" cy="${headCY-headR-20}" r="2.5" fill="#FFEAA7"/>
+      <circle cx="${cx+10}" cy="${headCY-headR-14}" r="2" fill="#FFEAA7"/>
+    `;
+  } else if (accessoryId === 'glasses') {
+    accessorySVG = `
+      <ellipse cx="${cx-13}" cy="${headCY-3}" rx="12" ry="8" fill="none" stroke="#2D3436" stroke-width="2.5"/>
+      <ellipse cx="${cx+13}" cy="${headCY-3}" rx="12" ry="8" fill="none" stroke="#2D3436" stroke-width="2.5"/>
+      <line x1="${cx-1}" y1="${headCY-3}" x2="${cx+1}" y2="${headCY-3}" stroke="#2D3436" stroke-width="2.5"/>
+      <line x1="${cx-25}" y1="${headCY-5}" x2="${cx-25}" y2="${headCY-10}" stroke="#2D3436" stroke-width="2"/>
+      <line x1="${cx+25}" y1="${headCY-5}" x2="${cx+25}" y2="${headCY-10}" stroke="#2D3436" stroke-width="2"/>
+    `;
+  } else if (accessoryId === 'hat') {
+    accessorySVG = `
+      <ellipse cx="${cx}" cy="${headCY-headR+2}" rx="${headR-2}" ry="8" fill="${colorHex}" stroke="#000" stroke-opacity="0.1" stroke-width="1"/>
+      <rect x="${cx-headR+4}" y="${headCY-headR-16}" width="${2*headR-8}" height="${18}" rx="4" fill="${colorHex}" stroke="#000" stroke-opacity="0.1" stroke-width="1"/>
+    `;
+  } else if (accessoryId === 'cape') {
+    accessorySVG = `
+      <path d="M${cx-headR+2},${h*0.5} Q${cx},${h*0.9} ${cx+headR-2},${h*0.5} Z" fill="${colorHex}" opacity="0.6"/>
+    `;
+  }
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <path d="M${cx-headR+4},${h*0.5} Q${cx},${h*0.48} ${cx+headR-4},${h*0.5} L${cx+headR-10},${h*0.85} Q${cx},${h*0.9} ${cx-headR+10},${h*0.85} Z" fill="${colorHex}" stroke="#000" stroke-opacity="0.08" stroke-width="1"/>
+      <!-- Arms -->
+      <line x1="${cx-headR+10}" y1="${h*0.55}" x2="${cx-headR-8}" y2="${h*0.7}" stroke="${colorHex}" stroke-width="5" stroke-linecap="round"/>
+      <line x1="${cx+headR-10}" y1="${h*0.55}" x2="${cx+headR+8}" y2="${h*0.7}" stroke="${colorHex}" stroke-width="5" stroke-linecap="round"/>
+      <!-- Hands -->
+      <circle cx="${cx-headR-8}" cy="${h*0.7}" r="5" fill="${skinHex}"/>
+      <circle cx="${cx+headR+8}" cy="${h*0.7}" r="5" fill="${skinHex}"/>
+      <!-- Legs -->
+      <line x1="${cx-8}" y1="${h*0.85}" x2="${cx-12}" y2="${h*0.98}" stroke="#2D3436" stroke-width="6" stroke-linecap="round"/>
+      <line x1="${cx+8}" y1="${h*0.85}" x2="${cx+12}" y2="${h*0.98}" stroke="#2D3436" stroke-width="6" stroke-linecap="round"/>
+      <!-- Feet -->
+      <ellipse cx="${cx-12}" cy="${h*0.98}" rx="7" ry="4" fill="#2D3436"/>
+      <ellipse cx="${cx+12}" cy="${h*0.98}" rx="7" ry="4" fill="#2D3436"/>
+      <!-- Head -->
+      <circle cx="${cx}" cy="${headCY}" r="${headR}" fill="${skinHex}" stroke="#000" stroke-opacity="0.06" stroke-width="1"/>
+      <!-- Eyes -->
+      <circle cx="${cx-10}" cy="${headCY-5}" r="4" fill="#2D3436"/>
+      <circle cx="${cx+10}" cy="${headCY-5}" r="4" fill="#2D3436"/>
+      <!-- Eye shine -->
+      <circle cx="${cx-8.5}" cy="${headCY-7}" r="1.5" fill="#fff"/>
+      <circle cx="${cx+11.5}" cy="${headCY-7}" r="1.5" fill="#fff"/>
+      <!-- Mouth -->
+      <path d="M${cx-10},${headCY+8} Q${cx},${headCY+16} ${cx+10},${headCY+8}" fill="none" stroke="#2D3436" stroke-width="2" stroke-linecap="round"/>
+      <!-- Cheeks -->
+      <ellipse cx="${cx-18}" cy="${headCY+4}" rx="6" ry="4" fill="#FF8A80" opacity="0.3"/>
+      <ellipse cx="${cx+18}" cy="${headCY+4}" rx="6" ry="4" fill="#FF8A80" opacity="0.3"/>
+      <!-- Accessory -->
+      ${accessorySVG}
+    </svg>
+  `;
+}
+
+// ==================== UI RENDER FUNCTIONS ====================
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  // Reset any pending feedback
+  clearFeedback();
+}
+
+function renderCharacterPreview() {
+  const color = COLORS.find(c => c.id === state.colorId) || COLORS[0];
+  const skin = SKIN_TONES.find(s => s.id === state.skinId) || SKIN_TONES[0];
+  const svg = generateCharacterSVG(color.hex, skin.hex, state.accessoryId, 120);
+  document.getElementById('customize-preview').innerHTML = svg;
+}
+
+function renderMiniAvatar() {
+  const color = COLORS.find(c => c.id === state.colorId) || COLORS[0];
+  const skin = SKIN_TONES.find(s => s.id === state.skinId) || SKIN_TONES[0];
+  const svg = generateCharacterSVG(color.hex, skin.hex, state.accessoryId, 40);
+  document.getElementById('mini-avatar').innerHTML = svg;
+}
+
+function renderStats() {
+  document.getElementById('stats-name').textContent = state.playerName;
+  document.getElementById('stats-level').textContent = `سطح ${state.level}`;
+  document.getElementById('stats-power').textContent = state.power;
+  document.getElementById('stats-health').textContent = state.health;
+  document.getElementById('stats-coins').textContent = state.coins;
+
+  // Progress bars
+  const powerPct = Math.min(100, (state.power / POWER_PER_LEVEL) * 100);
+  document.getElementById('power-bar').style.width = powerPct + '%';
+  document.getElementById('power-text').textContent = `${state.power}/${POWER_PER_LEVEL}`;
+
+  const healthPct = Math.max(0, (state.health / MAX_HEALTH) * 100);
+  document.getElementById('health-bar').style.width = healthPct + '%';
+  document.getElementById('health-text').textContent = state.health;
+
+  const streakMax = 10;
+  const streakPct = Math.min(100, (state.streak / streakMax) * 100);
+  document.getElementById('streak-bar').style.width = streakPct + '%';
+  document.getElementById('streak-text').textContent = state.streak;
+}
+
+function renderQuestion(q) {
+  const num = document.getElementById('question-number');
+  num.textContent = `سوال #${state.questionCount}`;
+
+  const n1 = document.getElementById('q-num1');
+  const n2 = document.getElementById('q-num2');
+  const opEl = document.getElementById('q-op');
+  const qBox = document.getElementById('q-answer-box');
+
+  n1.textContent = q.a;
+  n2.textContent = q.b;
+
+  const opMap = { '+': 'add', '-': 'sub', '×': 'mul', '÷': 'div' };
+  opEl.className = `op op-${opMap[q.op]}`;
+  opEl.textContent = q.op;
+
+  qBox.textContent = '?';
+  qBox.className = 'qmark';
+
+  // Clear input
+  const input = document.getElementById('answer-input');
+  input.value = '';
+  input.className = 'answer-input';
+  input.disabled = false;
+  input.focus();
+
+  document.getElementById('answer-submit').disabled = false;
+
+  // Streak indicator
+  const streakEl = document.getElementById('streak-indicator');
+  if (state.streak >= 2) {
+    streakEl.classList.remove('hidden');
+    document.getElementById('streak-count').textContent = state.streak;
+    const mult = getMultiplier();
+    document.getElementById('streak-multiplier').textContent = `×${mult}`;
+    if (state.streak >= 5) streakEl.classList.add('on-fire');
+    else streakEl.classList.remove('on-fire');
+  } else {
+    streakEl.classList.add('hidden');
+  }
+}
+
+function getMultiplier() {
+  if (state.streak >= 10) return 3;
+  if (state.streak >= 5) return 2;
+  if (state.streak >= 3) return 1.5;
+  return 1;
+}
+
+// ==================== CUSTOMIZATION UI ====================
+function initCustomizationUI() {
+  // Color swatches
+  const colorContainer = document.getElementById('color-options');
+  colorContainer.innerHTML = '';
+  COLORS.forEach(c => {
+    const swatch = document.createElement('div');
+    swatch.className = `color-swatch${c.id === state.colorId ? ' active' : ''}`;
+    swatch.style.backgroundColor = c.hex;
+    swatch.title = c.label;
+    swatch.onclick = () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+      state.colorId = c.id;
+      renderCharacterPreview();
+    };
+    colorContainer.appendChild(swatch);
+  });
+
+  // Skin swatches
+  const skinContainer = document.getElementById('skin-options');
+  skinContainer.innerHTML = '';
+  SKIN_TONES.forEach(s => {
+    const swatch = document.createElement('div');
+    swatch.className = `skin-swatch${s.id === state.skinId ? ' active' : ''}`;
+    swatch.style.backgroundColor = s.hex;
+    swatch.title = s.label;
+    swatch.onclick = () => {
+      document.querySelectorAll('.skin-swatch').forEach(el => el.classList.remove('active'));
+      swatch.classList.add('active');
+      state.skinId = s.id;
+      renderCharacterPreview();
+    };
+    skinContainer.appendChild(swatch);
+  });
+
+  // Accessory buttons
+  const accContainer = document.getElementById('accessory-options');
+  accContainer.innerHTML = '';
+  ACCESSORIES.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = `accessory-btn${a.id === state.accessoryId ? ' active' : ''}`;
+    btn.textContent = a.emoji ? `${a.emoji} ${a.label}` : a.label;
+    btn.onclick = () => {
+      document.querySelectorAll('.accessory-btn').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      state.accessoryId = a.id;
+      renderCharacterPreview();
+    };
+    accContainer.appendChild(btn);
+  });
+
+  document.getElementById('name-input').value = state.playerName;
+  renderCharacterPreview();
+}
+
+function applyCustomization() {
+  state.playerName = document.getElementById('name-input').value.trim() || 'قهرمان';
+  showScreen('game-screen');
+  startPlaying();
+}
+
+// ==================== GAMEPLAY ====================
+function startGame() {
+  // Check if we have saved state
+  if (state.isPlaying) {
+    showScreen('game-screen');
+    renderStats();
+    return;
+  }
+  // Show customize first if never customized
+  const saved = loadState();
+  if (saved) {
+    Object.assign(state, saved);
+    state.isPlaying = true;
+    showScreen('game-screen');
+    renderMiniAvatar();
+    renderStats();
+    const q = generateQuestion();
+    state.currentAnswer = q;
+    renderQuestion(q);
+  } else {
+    initCustomizationUI();
+    showScreen('customize-screen');
+  }
+}
+
+function startPlaying() {
+  state.isPlaying = true;
+  state.level = 1;
+  state.power = 0;
+  state.health = MAX_HEALTH;
+  state.coins = 0;
+  state.streak = 0;
+  state.totalCorrect = 0;
+  state.totalWrong = 0;
+  state.questionCount = 0;
+  state.isBossBattle = false;
+
+  renderMiniAvatar();
+  renderStats();
+  const q = generateQuestion();
+  state.currentAnswer = q;
+  renderQuestion(q);
+  saveState();
+}
+
+function restartGame() {
+  showScreen('game-screen');
+  startPlaying();
+}
+
+function submitAnswer() {
+  if (state.isTransitioning) return;
+
+  const input = document.getElementById('answer-input');
+  const val = input.value.trim();
+  if (!val) {
+    input.focus();
+    return;
+  }
+
+  const userAnswer = parseInt(val, 10);
+  if (isNaN(userAnswer)) {
+    input.focus();
+    return;
+  }
+
+  const q = state.currentAnswer;
+  const isCorrect = userAnswer === q.answer;
+
+  state.isTransitioning = true;
+  input.disabled = true;
+  document.getElementById('answer-submit').disabled = true;
+
+  if (isCorrect) {
+    handleCorrect(input, userAnswer, q);
+  } else {
+    handleWrong(input, userAnswer, q);
+  }
+}
+
+function handleCorrect(input, userAnswer, q) {
+  input.className = 'answer-input correct';
+  document.getElementById('q-answer-box').textContent = q.answer;
+  document.getElementById('q-answer-box').className = 'qmark text-success';
+
+  state.totalCorrect++;
+  state.streak++;
+  if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+  const mult = getMultiplier();
+  const basePower = 10 + state.level * 2;
+  const powerGain = Math.round(basePower * mult);
+  const coinGain = 5 + state.level;
+
+  state.power = Math.min(POWER_PER_LEVEL, state.power + powerGain);
+  state.coins += coinGain;
+
+  showFeedback(true, q.answer);
+
+  renderStats();
+
+  // Check level up
+  if (state.power >= POWER_PER_LEVEL) {
+    setTimeout(() => levelUp(), 800);
+  } else {
+    // Check boss battle
+    if (state.level % BOSS_INTERVAL === 0 && state.questionsAnswered === BOSS_REQUIRED * 2) {
+      // Actually boss is triggered on level up to boss level
+    }
+    setTimeout(() => nextQuestion(), 600);
+  }
+}
+
+function handleWrong(input, userAnswer, q) {
+  input.className = 'answer-input wrong';
+  document.getElementById('q-answer-box').textContent = q.answer;
+  document.getElementById('q-answer-box').className = 'qmark text-danger';
+
+  state.totalWrong++;
+  state.streak = 0;
+
+  const healthLoss = 8 + state.level * 2;
+  state.health = Math.max(0, state.health - healthLoss);
+
+  showFeedback(false, q.answer, userAnswer);
+
+  renderStats();
+
+  if (state.health <= 0) {
+    setTimeout(() => gameOver(), 1000);
+  } else {
+    setTimeout(() => nextQuestion(), 1000);
+  }
+}
+
+function nextQuestion() {
+  state.isTransitioning = false;
+  state.questionCount++;
+  const q = generateQuestion();
+  state.currentAnswer = q;
+  renderQuestion(q);
+  renderStats();
+  saveState();
+}
+
+function levelUp() {
+  state.level++;
+  state.power = 0;
+  state.questionsAnswered = 0;
+
+  // Show level up screen
+  document.getElementById('levelup-new-level').textContent = `سطح ${state.level}`;
+  document.getElementById('levelup-continue').style.display = 'none';
+  showScreen('levelup-screen');
+  launchConfetti();
+
+  // Check boss level
+  if (state.level % BOSS_INTERVAL === 0) {
+    // Boss incoming!
+    setTimeout(() => {
+      document.getElementById('levelup-continue').style.display = 'block';
+      document.getElementById('levelup-continue').textContent = '⚔️ مأموریت ویژه!';
+      document.getElementById('levelup-continue').onclick = () => {
+        showScreen('game-screen');
+        startBossBattle();
+      };
+    }, 1200);
+  } else {
+    setTimeout(() => {
+      document.getElementById('levelup-continue').style.display = 'block';
+      document.getElementById('levelup-continue').textContent = '🔥 ادامه ماجراجویی';
+      document.getElementById('levelup-continue').onclick = continueAfterLevelUp;
+    }, 1000);
+  }
+}
+
+function continueAfterLevelUp() {
+  showScreen('game-screen');
+  nextQuestion();
+}
+
+// ==================== BOSS BATTLE ====================
+function startBossBattle() {
+  state.isBossBattle = true;
+  state.bossProgress = 0;
+  state.streak = 0;
+
+  document.getElementById('boss-retry-btn').style.display = 'none';
+  document.getElementById('boss-skip-btn').style.display = 'inline-flex';
+  document.getElementById('boss-required').textContent = BOSS_REQUIRED;
+
+  // Create dots
+  const dotsContainer = document.getElementById('boss-dots');
+  dotsContainer.innerHTML = '';
+  for (let i = 0; i < BOSS_REQUIRED; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'boss-dot';
+    dot.id = `boss-dot-${i}`;
+    dotsContainer.appendChild(dot);
+  }
+
+  showScreen('boss-screen');
+  renderBossQuestion();
+}
+
+function renderBossQuestion() {
+  const area = document.getElementById('boss-question-area');
+  const q = generateQuestion();
+  state.currentAnswer = q;
+
+  const opMap = { '+': 'add', '-': 'sub', '×': 'mul', '÷': 'div' };
+  const opClass = `op op-${opMap[q.op]}`;
+
+  area.innerHTML = `
+    <div class="question-card" style="margin-top:12px">
+      <div class="question-prompt" style="font-size:1.8rem">
+        <span class="num">${q.a}</span>
+        <span class="${opClass}">${q.op}</span>
+        <span class="num">${q.b}</span>
+        <span class="eq">=</span>
+        <span class="qmark" id="boss-q-answer">?</span>
+      </div>
+      <div class="answer-row" style="max-width:none">
+        <input class="answer-input" id="boss-answer-input" type="number" inputmode="numeric" placeholder="پاسخ..." autocomplete="off">
+        <button class="btn btn-primary answer-submit" id="boss-answer-submit" onclick="submitBossAnswer()">✓</button>
+      </div>
+      <div class="numpad" style="max-width:none">
+        <button class="numpad-btn" onclick="bossNumpad('7')">7</button>
+        <button class="numpad-btn" onclick="bossNumpad('8')">8</button>
+        <button class="numpad-btn" onclick="bossNumpad('9')">9</button>
+        <button class="numpad-btn numpad-btn-del" onclick="bossNumpadDel()">⌫</button>
+        <button class="numpad-btn" onclick="bossNumpad('4')">4</button>
+        <button class="numpad-btn" onclick="bossNumpad('5')">5</button>
+        <button class="numpad-btn" onclick="bossNumpad('6')">6</button>
+        <button class="numpad-btn numpad-btn-fn" onclick="bossNumpad('-')">−</button>
+        <button class="numpad-btn" onclick="bossNumpad('1')">1</button>
+        <button class="numpad-btn" onclick="bossNumpad('2')">2</button>
+        <button class="numpad-btn" onclick="bossNumpad('3')">3</button>
+        <button class="numpad-btn numpad-btn-fn" onclick="bossNumpadClear()">C</button>
+        <button class="numpad-btn" onclick="bossNumpad('0')" style="grid-column:span 2">0</button>
+        <button class="numpad-btn numpad-btn-submit" onclick="submitBossAnswer()" style="grid-column:span 2">✓ پاسخ</button>
+      </div>
+    </div>
+  `;
+
+  const inp = document.getElementById('boss-answer-input');
+  if (inp) inp.focus();
+}
+
+function submitBossAnswer() {
+  const input = document.getElementById('boss-answer-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const userAnswer = parseInt(val, 10);
+  if (isNaN(userAnswer)) return;
+
+  const q = state.currentAnswer;
+  const isCorrect = userAnswer === q.answer;
+
+  const answerBox = document.getElementById('boss-q-answer');
+  input.disabled = true;
+  document.getElementById('boss-answer-submit') && (document.getElementById('boss-answer-submit').disabled = true);
+
+  if (isCorrect) {
+    input.className = 'answer-input correct';
+    answerBox.textContent = q.answer;
+    answerBox.className = 'qmark text-success';
+    state.bossProgress++;
+    document.getElementById(`boss-dot-${state.bossProgress - 1}`).className = 'boss-dot done';
+
+    if (state.bossProgress >= BOSS_REQUIRED) {
+      // Boss defeated!
+      setTimeout(() => bossDefeated(), 600);
+    } else {
+      setTimeout(() => {
+        const dots = document.querySelectorAll('.boss-dot');
+        document.getElementById('boss-question-area').innerHTML = '<div class="loader-dots"><span></span><span></span><span></span></div><p class="text-muted">آماده برای سوال بعدی...</p>';
+        setTimeout(() => renderBossQuestion(), 500);
+      }, 600);
+    }
+  } else {
+    input.className = 'answer-input wrong';
+    answerBox.textContent = q.answer;
+    answerBox.className = 'qmark text-danger';
+    state.bossProgress = 0;
+    // Reset all dots done → fail
+    document.querySelectorAll('.boss-dot.done').forEach(d => d.className = 'boss-dot fail');
+    setTimeout(() => {
+      document.querySelectorAll('.boss-dot').forEach(d => d.className = 'boss-dot fail');
+    }, 200);
+
+    setTimeout(() => {
+      document.getElementById('boss-retry-btn').style.display = 'block';
+      document.getElementById('boss-skip-btn').style.display = 'inline-flex';
+      // Re-enable
+    }, 600);
+  }
+}
+
+function bossDefeated() {
+  launchConfetti();
+  const bonusCoins = 50 + state.level * 10;
+  state.coins += bonusCoins;
+  state.isBossBattle = false;
+  state.streak = 0;
+
+  document.getElementById('boss-question-area').innerHTML = `
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:4rem;margin-bottom:10px">🏆</div>
+      <h3 style="color:var(--success)">مأموریت انجام شد!</h3>
+      <p class="text-muted">+${bonusCoins} سکه پاداش 🪙</p>
+      <button class="btn btn-primary btn-lg" onclick="continueAfterBoss()" style="margin-top:16px">🔥 ادامه</button>
+    </div>
+  `;
+  document.getElementById('boss-skip-btn').style.display = 'none';
+  renderStats();
+  saveState();
+}
+
+function skipBoss() {
+  state.health = Math.max(0, state.health - 15);
+  state.isBossBattle = false;
+  renderStats();
+  if (state.health <= 0) {
+    gameOver();
+  } else {
+    showScreen('game-screen');
+    nextQuestion();
+  }
+}
+
+function continueAfterBoss() {
+  state.isBossBattle = false;
+  showScreen('game-screen');
+  nextQuestion();
+}
+
+// Boss numpad helpers
+function bossNumpad(d) {
+  const inp = document.getElementById('boss-answer-input');
+  if (inp && !inp.disabled) inp.value += d;
+}
+function bossNumpadDel() {
+  const inp = document.getElementById('boss-answer-input');
+  if (inp && !inp.disabled) inp.value = inp.value.slice(0, -1);
+}
+function bossNumpadClear() {
+  const inp = document.getElementById('boss-answer-input');
+  if (inp && !inp.disabled) inp.value = '';
+}
+
+// ==================== GAME OVER ====================
+function gameOver() {
+  state.isPlaying = false;
+  document.getElementById('go-level').textContent = state.level;
+  document.getElementById('go-score').textContent = state.totalCorrect * 10 + state.coins;
+  document.getElementById('go-correct').textContent = state.totalCorrect;
+  document.getElementById('go-wrong').textContent = state.totalWrong;
+  showScreen('gameover-screen');
+  clearState();
+}
+
+// ==================== FEEDBACK ====================
+function showFeedback(isCorrect, answer, userAnswer) {
+  const overlay = document.getElementById('feedback-overlay');
+
+  const badge = document.createElement('div');
+  badge.className = `feedback-badge ${isCorrect ? 'correct-badge' : 'wrong-badge'}`;
+
+  if (isCorrect) {
+    const mult = getMultiplier();
+    let bonusText = '';
+    if (mult > 1) bonusText = `<br><span style="font-size:0.8rem">🔥 ضریب ${mult}×</span>`;
+    badge.innerHTML = `✓ درست! 🎉${bonusText}`;
+  } else {
+    badge.innerHTML = `✗ اشتباه!<br><span class="feedback-correct-answer">${answer}</span>`;
+    // Shake the question card
+    const card = document.querySelector('.question-card');
+    if (card) card.style.animation = 'shake 0.5s ease';
+    setTimeout(() => { if (card) card.style.animation = ''; }, 500);
+  }
+
+  overlay.innerHTML = '';
+  overlay.appendChild(badge);
+
+  setTimeout(() => {
+    if (overlay.contains(badge)) {
+      badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      badge.style.opacity = '0';
+      badge.style.transform = 'scale(0.8) translateY(-20px)';
+      setTimeout(() => { if (overlay.contains(badge)) overlay.removeChild(badge); }, 400);
+    }
+  }, 1000);
+}
+
+function clearFeedback() {
+  document.getElementById('feedback-overlay').innerHTML = '';
+}
+
+// ==================== NUMPAD HELPERS ====================
+function numpadPress(d) {
+  const inp = document.getElementById('answer-input');
+  if (inp && !inp.disabled) {
+    inp.value += d;
+    inp.focus();
+  }
+}
+function numpadDelete() {
+  const inp = document.getElementById('answer-input');
+  if (inp && !inp.disabled) inp.value = inp.value.slice(0, -1);
+}
+function numpadClear() {
+  const inp = document.getElementById('answer-input');
+  if (inp && !inp.disabled) inp.value = '';
+}
+
+// ==================== CONFETTI ====================
+function launchConfetti(count = 60) {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#6C5CE7', '#00CEC9', '#FDCB6E', '#FF6B6B', '#00B894', '#FD79A8', '#74B9FF', '#FFEAA7'];
+
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 4 + Math.random() * 8;
+    const left = Math.random() * 100;
+    const delay = Math.random() * 1.5;
+    const duration = 2 + Math.random() * 2;
+    const shape = Math.random() > 0.5 ? '50%' : '2px';
+
+    piece.style.cssText = `
+      left: ${left}%;
+      width: ${size}px; height: ${size * (0.5 + Math.random())}px;
+      background: ${color};
+      border-radius: ${shape};
+      animation-delay: ${delay}s;
+      animation-duration: ${duration}s;
+    `;
+    container.appendChild(piece);
+    setTimeout(() => { if (container.contains(piece)) container.removeChild(piece); }, (delay + duration + 0.5) * 1000);
+  }
+}
+
+// ==================== BACKGROUND PARTICLES ====================
+function initBgParticles() {
+  const container = document.getElementById('bg-particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'bg-particle';
+    const size = 2 + Math.random() * 6;
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      width: ${size}px; height: ${size}px;
+      background: ${['#6C5CE7', '#00CEC9', '#FDCB6E', '#FF6B6B', '#74B9FF'][Math.floor(Math.random() * 5)]};
+      animation-duration: ${15 + Math.random() * 25}s;
+      animation-delay: ${Math.random() * 15}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ==================== PERSISTENCE ====================
+function saveState() {
+  try {
+    const data = {
+      playerName: state.playerName,
+      colorId: state.colorId,
+      skinId: state.skinId,
+      accessoryId: state.accessoryId,
+      level: state.level,
+      power: state.power,
+      health: state.health,
+      coins: state.coins,
+      streak: state.streak,
+      bestStreak: state.bestStreak,
+      totalCorrect: state.totalCorrect,
+      totalWrong: state.totalWrong,
+      questionCount: state.questionCount,
+      isPlaying: state.isPlaying,
+    };
+    localStorage.setItem('mathQuestSave', JSON.stringify(data));
+  } catch (e) { /* ignore */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('mathQuestSave');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function clearState() {
+  try { localStorage.removeItem('mathQuestSave'); } catch (e) { /* ignore */ }
+}
+
+// ==================== HOW TO PLAY ====================
+function showHowToPlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'mission-popup-overlay';
+  overlay.onclick = () => document.body.removeChild(overlay) && document.body.removeChild(popup);
+
+  const popup = document.createElement('div');
+  popup.className = 'mission-popup';
+  popup.innerHTML = `
+    <div style="font-size:3rem;margin-bottom:8px">📖</div>
+    <h3 style="margin-bottom:12px">راهنمای بازی</h3>
+    <div style="text-align:right;font-size:0.9rem;color:var(--text-muted);line-height:1.8">
+      <p>🧙 <strong>ماجراجوی ریاضی</strong> یک بازی آموزشی است.</p>
+      <p>✦ به سوالات چهار عمل اصلی (جمع، تفریق، ضرب، تقسیم) پاسخ بده.</p>
+      <p>✦ با پاسخ <span class="text-success">درست</span> ⚡قدرت و 🪙سکه بگیر.</p>
+      <p>✦ با پاسخ <span class="text-danger">غلط</span> ❤️سلامتی خود را از دست بده.</p>
+      <p>✦ با پر کردن نوار ⚡قدرت، سطح بالا می‌ری.</p>
+      <p>✦ هر ۵ سطح یک <strong>مأموریت ویژه</strong> پیش میاد!</p>
+      <p>✦ پاسخ‌های متوالی درست، ضریب امتیاز رو افزایش می‌دهد. 🔥</p>
+      <p style="margin-top:10px;font-size:0.8rem">موفق باشی، قهرمان! 💪</p>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="this.closest('.mission-popup').remove();document.querySelector('.mission-popup-overlay').remove();" style="margin-top:12px">✓ فهمیدم!</button>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+document.addEventListener('keydown', (e) => {
+  // Enter to submit
+  if (e.key === 'Enter') {
+    const activeScreen = document.querySelector('.screen.active');
+    if (!activeScreen) return;
+
+    if (activeScreen.id === 'game-screen') {
+      e.preventDefault();
+      submitAnswer();
+    }
+  }
+
+  // Escape to clear
+  if (e.key === 'Escape') {
+    const activeScreen = document.querySelector('.screen.active');
+    if (activeScreen && activeScreen.id === 'game-screen') {
+      const inp = document.getElementById('answer-input');
+      if (inp && !inp.disabled) { inp.value = ''; inp.focus(); }
+    }
+  }
+});
+
+// ==================== INITIALIZATION ====================
+function init() {
+  initBgParticles();
+
+  // Check for saved state on load
+  const saved = loadState();
+  if (saved) {
+    Object.assign(state, saved);
+  }
+
+  // Init customize UI
+  initCustomizationUI();
+
+  // Auto-start if was playing
+  if (state.isPlaying && state.health > 0) {
+    showScreen('game-screen');
+    renderMiniAvatar();
+    renderStats();
+    const q = generateQuestion();
+    state.currentAnswer = q;
+    renderQuestion(q);
+  }
+}
+
+// Start the app
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
